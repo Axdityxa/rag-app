@@ -1,2 +1,29 @@
-.env.*
+# Environment
 .env
+.env.*
+
+# Vector database (auto-generated)
+chroma_db/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Virtual environment
+venv/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test files
+test_e2e.py
