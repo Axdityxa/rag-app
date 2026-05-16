@@ -1,0 +1,354 @@
+✅ Best picks for YOU (ranked)
+🥇 1. Production RAG App (MUST DO)
+
+This is your golden ticket
+
+From your file:
+
+Why it fits FDE:
+
+real-world use case (every company uses RAG)
+involves backend + APIs + data pipelines
+shows system thinking
+
+What you should ACTUALLY build (keep it simple but solid):
+
+upload PDFs → ask questions
+return answers with citations
+use:
+LangChain / LlamaIndex
+Chroma / FAISS
+OpenAI / any LLM API
+
+🔥 Add 2 things to stand out:
+
+hybrid search (BM25 + vector) → optional if time
+evaluation script (even basic)
+
+👉 If you do ONLY ONE project → do THIS.
+
+🥈 2. Monitoring & Observability (SECRET WEAPON)
+
+This is what most candidates DON’T have
+
+From your file:
+
+Why this is insanely valuable:
+
+shows engineering maturity
+aligns perfectly with FDE work
+interviewers LOVE this
+
+What to add on top of your RAG:
+
+log:
+response time
+token usage
+errors
+simple dashboard (even logs + charts is enough)
+
+👉 In interview, you can say:
+
+“I tracked latency and failure cases and improved it”
+
+That line alone >>> 90% candidates
+
+🥉 3. Local LLM App (ONLY IF TIME)
+
+Good, but secondary
+
+From your file:
+
+Why useful:
+
+shows understanding of:
+latency
+cost
+offline constraints
+
+But:
+
+not mandatory for FDE interview
+can skip if time is tight
+❌ Skip (for now)
+🚫 Fine-tuning (LoRA, DPO)
+too deep
+needs data + time
+interviewers WON’T expect this from you
+🚫 Real-time multimodal
+too complex
+high effort, low ROI for your situation
+🧩 Final Strategy (THIS is what you should do)
+Build 1 STRONG project instead of 5 weak ones:
+👉 Your project:
+
+“Production RAG System with Monitoring”
+
+📦 What your final project should include:
+
+Core:
+
+upload docs
+ask questions
+answers with citations
+
+Engineering (this is what gets you hired):
+
+logging
+error handling
+basic metrics (latency, success rate)
+
+Bonus (if time):
+
+simple UI (Streamlit / React)
+evaluation script
+🧠 How to prepare for interview (important)
+
+You don’t need to “know AI deeply”
+
+You need to confidently explain:
+
+1. Architecture
+how RAG works (high level)
+why vector DB
+why chunking
+2. Trade-offs
+accuracy vs speed
+cost vs performance
+3. Failures
+hallucination
+wrong retrieval
+
+👉 If you can talk about these = you're already ahead
+
+⚡ Reality check
+
+If you try:
+
+5 projects → ❌ you’ll fail
+1 solid project → ✅ you can crack interview
+🔥 What I recommend RIGHT NOW
+
+Start with:
+
+basic RAG (2–3 days)
+add logging + metrics (2 days)
+polish + README (1–2 days)
+
+-----------------------------------------------------------
+
+Perfect — this is actually a goldmine, not just “some docs”. This is basically your roadmap for building the exact project you need.
+I’ll simplify it so you don’t get overwhelmed and can execute fast 👇
+
+🧠 What these resources actually mean (decoded)
+1. LangChain RAG tutorial
+👉 This is your starting point
+
+
+teaches:
+
+
+document loading
+
+
+chunking
+
+
+embeddings
+
+
+vector search
+
+
+
+
+📌 Translation:
+
+“Get something working quickly”
+
+
+2. Cohere Rerank Guide
+👉 This is advanced polish
+
+
+improves retrieval quality
+
+
+sorts results better
+
+
+📌 Translation:
+
+“Make your answers actually good (not random)”
+
+
+3. RAGAS
+👉 This is evaluation (VERY IMPORTANT)
+
+
+checks:
+
+
+answer correctness
+
+
+relevance
+
+
+faithfulness
+
+
+
+
+📌 Translation:
+
+“Prove your system works (this impresses interviewers a LOT)”
+
+
+4. Workshops
+👉 Ignore for now
+
+
+too long
+
+
+not needed for your timeline
+
+
+
+⚡ What YOU should do (step-by-step plan)
+Don’t try everything at once.
+✅ Phase 1 — Get basic RAG working (Day 1–2)
+Follow LangChain tutorial but keep it minimal:
+Build:
+
+
+upload PDF / docs
+
+
+ask question
+
+
+get answer
+
+
+Stack:
+
+
+Python + LangChain
+
+
+OpenAI / any LLM API
+
+
+FAISS / Chroma
+
+
+👉 At this stage:
+
+“It works” > “It is perfect”
+
+
+✅ Phase 2 — Make it “interview-worthy” (Day 3–4)
+Now add the things that matter:
+🔹 1. Citations (VERY IMPORTANT)
+
+
+show which chunk answer came from
+
+
+👉 Interview gold line:
+
+“I made sure responses are grounded with citations to avoid hallucination”
+
+
+🔹 2. Basic Logging
+Track:
+
+
+response time
+
+
+errors
+
+
+👉 Even simple print logs = fine
+
+🔹 3. Better retrieval (optional boost)
+
+
+top_k tuning (like 3 → 5)
+
+
+try reranking (if time)
+
+
+
+✅ Phase 3 — Add evaluation (Day 5)
+Use RAGAS (or even fake simple version)
+Simple version if stuck:
+
+
+manually create 10 Q&A
+
+
+check:
+
+
+correct / incorrect
+
+
+
+
+👉 Interview line:
+
+“I created a small evaluation dataset to test accuracy”
+
+
+🎯 Final deliverable (what your project should look like)
+🧾 README should clearly say:
+
+
+What problem it solves
+
+
+Architecture (simple diagram or explanation)
+
+
+Tech stack
+
+
+Metrics (even basic)
+
+
+
+🧠 What NOT to do (important)
+❌ Don’t:
+
+
+dive deep into theory
+
+
+try to understand everything perfectly
+
+
+waste time on workshops
+
+
+✅ Do:
+
+
+build → break → fix → explain
+
+
+
+🔥 How this helps in interview
+When they ask:
+“Do you have AI experience?”
+You say:
+
+“I built a production-style RAG system with document ingestion, vector search, and evaluation. I also added logging and citation grounding.”
+
+That sounds 100x stronger than:
+
+“I tried some AI tutorials”
