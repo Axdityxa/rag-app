@@ -1,0 +1,4 @@
+# Avoid scanning site-packages (e.g. transformers) on every reload — causes
+# hundreds of harmless ModuleNotFoundError lines for optional vision deps.
+[server]
+fileWatcherType = "none"

@@ -1,5 +1,6 @@
 import os
 
+import chromadb
 from langchain_ollama import OllamaEmbeddings
 from langchain_chroma import Chroma
 
@@ -8,56 +9,64 @@ from src.logger import setup_logger
 logger = setup_logger("vector_store")
 
 CHROMA_DIR = "chroma_db"
+CTO_COLLECTION = "cto_codebase"
 
 
 def get_embedding_model():
-    logger.info("get_embedding_model called")
     try:
         model = os.getenv("EMBEDDING_MODEL", "nomic-embed-text")
         base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-        logger.debug(f"Creating OllamaEmbeddings(model='{model}', base_url='{base_url}')")
-        embeddings = OllamaEmbeddings(model=model, base_url=base_url)
-        logger.info(f"Embedding model '{model}' initialised")
-        return embeddings
+        return OllamaEmbeddings(model=model, base_url=base_url)
     except Exception as e:
         logger.error(f"Failed to create embedding model: {e}", exc_info=True)
         raise
 
 
 def get_vector_store(collection_name: str = "rag_docs"):
-    logger.info(f"get_vector_store called with collection_name='{collection_name}'")
     try:
         embeddings = get_embedding_model()
-        logger.debug(f"Creating Chroma(collection='{collection_name}', persist_directory='{CHROMA_DIR}')")
-        vector_store = Chroma(
+        return Chroma(
             collection_name=collection_name,
             embedding_function=embeddings,
             persist_directory=CHROMA_DIR,
         )
-        logger.info(f"Vector store '{collection_name}' ready at '{CHROMA_DIR}'")
-        return vector_store
     except Exception as e:
         logger.error(f"Failed to get vector store: {e}", exc_info=True)
         raise
 
 
-def index_documents(chunks: list, collection_name: str = "rag_docs"):
-    logger.info(f"index_documents called with {len(chunks)} chunk(s), "
-                f"collection_name='{collection_name}'")
+def reset_collection(collection_name: str):
+    """Delete a Chroma collection so re-indexing starts fresh."""
     try:
-        logger.debug("Getting vector store ...")
+        client = chromadb.PersistentClient(path=CHROMA_DIR)
+        client.delete_collection(collection_name)
+        logger.info(f"Deleted collection '{collection_name}'")
+    except (ValueError, Exception) as e:
+        logger.debug(f"Collection '{collection_name}' not deleted (may not exist): {e}")
+
+    if collection_name == CTO_COLLECTION:
+        from src.bm25_store import BM25_PATH
+        if BM25_PATH.exists():
+            BM25_PATH.unlink()
+            logger.info("Deleted BM25 corpus")
+
+
+def index_documents(chunks: list, collection_name: str = "rag_docs", reset: bool = False):
+    try:
+        if reset:
+            reset_collection(collection_name)
         vector_store = get_vector_store(collection_name)
-
-        logger.debug("Adding documents to vector store ...")
-        for i, chunk in enumerate(chunks):
-            logger.debug(f"  Adding chunk {i}: source={chunk.metadata.get('source')}, "
-                         f"page={chunk.metadata.get('page')}, "
-                         f"content_preview='{chunk.page_content[:60]}...'")
-
         vector_store.add_documents(chunks)
-        logger.info(f"Indexed {len(chunks)} chunks into ChromaDB ('{collection_name}')")
+        logger.info(f"Indexed {len(chunks)} chunks into '{collection_name}'")
         return vector_store
-
     except Exception as e:
         logger.error(f"Failed to index documents: {e}", exc_info=True)
         raise
+
+
+def collection_count(collection_name: str) -> int:
+    try:
+        store = get_vector_store(collection_name)
+        return store._collection.count()
+    except Exception:
+        return 0

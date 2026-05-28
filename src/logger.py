@@ -40,7 +40,7 @@ class ColorFormatter(logging.Formatter):
         return result
 
 
-def setup_logger(name: str, level: int = logging.DEBUG) -> logging.Logger:
+def setup_logger(name: str, level: int = logging.INFO) -> logging.Logger:
     logger = logging.getLogger(name)
     logger.setLevel(level)
 
