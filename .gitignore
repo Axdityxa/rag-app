@@ -27,3 +27,6 @@ Thumbs.db
 
 # Test files
 test_e2e.py
+
+# Uploaded / extracted repos
+workspace/

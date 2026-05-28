@@ -1,0 +1,50 @@
+[
+  {
+    "question": "Where is the Chroma collection name for the CTO codebase defined?",
+    "mode": "ask",
+    "expected_sources": ["src/vector_store.py"],
+    "expected_keywords": ["CTO_COLLECTION", "cto_codebase"]
+  },
+  {
+    "question": "How does the app index a uploaded zip file?",
+    "mode": "flow",
+    "expected_sources": ["src/app.py", "src/code_ingest.py"],
+    "expected_keywords": ["extract_zip"]
+  },
+  {
+    "question": "What does build_cto_chain do?",
+    "mode": "ask",
+    "expected_sources": ["src/rag.py"],
+    "expected_keywords": ["get_cto_retriever"]
+  },
+  {
+    "question": "Where is hybrid BM25 and vector retrieval configured?",
+    "mode": "ask",
+    "expected_sources": ["src/retrieval.py"],
+    "expected_keywords": ["EnsembleRetriever", "BM25"]
+  },
+  {
+    "question": "How are guardrails applied after generation?",
+    "mode": "ask",
+    "expected_sources": ["src/guardrails.py", "src/rag.py"],
+    "expected_keywords": ["apply_guardrails"]
+  },
+  {
+    "question": "Where are CTO mode prompts defined?",
+    "mode": "ask",
+    "expected_sources": ["src/prompts.py"],
+    "expected_keywords": ["MODE_PROMPTS"]
+  },
+  {
+    "question": "I want to add streaming responses to the chat UI. What files would likely change?",
+    "mode": "plan",
+    "expected_sources": ["src/app.py", "src/rag.py"],
+    "expected_keywords": []
+  },
+  {
+    "question": "If I change RETRIEVAL_TOP_K in the environment, what components are affected?",
+    "mode": "impact",
+    "expected_sources": ["src/retrieval.py"],
+    "expected_keywords": ["TOP_K"]
+  }
+]
