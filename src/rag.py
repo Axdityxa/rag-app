@@ -1,12 +1,13 @@
+"""CTO RAG orchestration: retrieve context, then answer with Ollama."""
+
 import os
 import time
 
-from langchain_classic.chains import create_retrieval_chain
 from langchain_classic.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
 
 from src.llm import get_llm
-from src.retrieval import get_cto_retriever, retrieve_for_query
+from src.retrieval import retrieve_for_query
 from src.query import rewrite_query, effective_mode, is_chat_meta_question
 from src.guardrails import apply_guardrails
 from src.prompts import MODE_PROMPTS, CITATION_RULES
@@ -14,54 +15,30 @@ from src.logger import setup_logger
 
 logger = setup_logger("rag")
 
-DOC_SYSTEM_PROMPT = """
-You are a helpful assistant. Answer the user's question based ONLY on the provided context.
-If the context doesn't contain enough information, say "I don't have enough information to answer that."
-Always cite the source document and page number in your answer.
-
-Context:
-{context}
-"""
-
 MAX_HISTORY_TURNS = int(os.getenv("MAX_HISTORY_TURNS", "6"))
 
 
-def _build_chain(system_prompt: str, retriever, k: int = 4):
-    llm = get_llm()
+def verify_cto_ready() -> None:
+    """Fail fast at startup if the codebase is not indexed or Ollama is down."""
+    from src.vector_store import collection_count, CTO_COLLECTION
+
+    if collection_count(CTO_COLLECTION) == 0:
+        raise RuntimeError("No codebase indexed. Index your repo in the sidebar first.")
+    get_llm()
+
+
+def _build_doc_chain(answer_mode: str):
+    """LLM + prompt that stuffs retrieved chunks into {context}."""
+    prompt_text = (
+        MODE_PROMPTS.get(answer_mode, MODE_PROMPTS["ask"])
+        + CITATION_RULES
+        + "\n\nContext:\n{context}"
+    )
     prompt = ChatPromptTemplate.from_messages([
-        ("system", system_prompt),
+        ("system", prompt_text),
         ("human", "{input}"),
     ])
-    document_chain = create_stuff_documents_chain(llm, prompt)
-    return create_retrieval_chain(retriever, document_chain)
-
-
-def build_rag_chain():
-    from src.vector_store import get_vector_store
-
-    try:
-        vector_store = get_vector_store("rag_docs")
-        retriever = vector_store.as_retriever(search_kwargs={"k": 4})
-        chain = _build_chain(DOC_SYSTEM_PROMPT, retriever)
-        logger.info("Document RAG chain ready")
-        return chain
-    except Exception as e:
-        logger.error(f"Failed to build RAG chain: {e}", exc_info=True)
-        raise
-
-
-def build_cto_chain(mode: str = "ask"):
-    try:
-        prompt = MODE_PROMPTS.get(mode, MODE_PROMPTS["ask"])
-        full_prompt = prompt + CITATION_RULES + "\n\nContext:\n{context}"
-        retriever = get_cto_retriever(mode)
-        chain = _build_chain(full_prompt, retriever)
-        chain._cto_mode = mode  # type: ignore[attr-defined]
-        logger.info(f"AI CTO chain ready (mode={mode}, pipeline=hybrid+mmr+rerank)")
-        return chain
-    except Exception as e:
-        logger.error(f"Failed to build CTO chain: {e}", exc_info=True)
-        raise
+    return create_stuff_documents_chain(get_llm(), prompt)
 
 
 def _format_sources(context_docs: list) -> list[dict]:
@@ -146,13 +123,17 @@ def _build_user_message(question: str, chat_history: str | None) -> str:
 
 def ask(
     question: str,
-    chain,
-    mode: str | None = None,
+    mode: str = "ask",
     chat_history: list[dict] | None = None,
 ) -> dict:
+    """
+    Answer a question about the indexed codebase.
+
+    Flow: mode tweaks → optional query rewrite → retrieve → trim → LLM → guardrails.
+    """
     start = time.time()
     try:
-        selected_mode = mode or getattr(chain, "_cto_mode", "ask")
+        selected_mode = mode
         answer_mode = effective_mode(question, selected_mode)
 
         if is_chat_meta_question(question):
@@ -184,17 +165,7 @@ def ask(
                 "effective_mode": answer_mode,
             }
 
-        prompt_text = (
-            MODE_PROMPTS.get(answer_mode, MODE_PROMPTS["ask"])
-            + CITATION_RULES
-            + "\n\nContext:\n{context}"
-        )
-        prompt = ChatPromptTemplate.from_messages([
-            ("system", prompt_text),
-            ("human", "{input}"),
-        ])
-        llm = get_llm()
-        doc_chain = create_stuff_documents_chain(llm, prompt)
+        doc_chain = _build_doc_chain(answer_mode)
         answer = doc_chain.invoke({"input": user_message, "context": context_docs})
 
         guarded = apply_guardrails(answer, context_docs)

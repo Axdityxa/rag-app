@@ -6,7 +6,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.rag import build_cto_chain, ask
+from src.rag import ask
 from src.retrieval import retrieve_for_query, TOP_K
 from src.query import rewrite_query
 from src.logger import setup_logger
@@ -53,8 +53,7 @@ def run_evaluation(dataset_path: str = "evaluation/cto_eval.json"):
         if r_hit:
             retrieval_hits += 1
 
-        chain = build_cto_chain(mode)
-        result = ask(question, chain, mode=mode)
+        result = ask(question, mode=mode)
         answer = result["answer"].lower()
         if expected_keywords:
             a_hit = all(kw.lower() in answer for kw in expected_keywords)

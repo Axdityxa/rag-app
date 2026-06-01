@@ -12,7 +12,7 @@
     "expected_keywords": ["extract_zip"]
   },
   {
-    "question": "What does build_cto_chain do?",
+    "question": "What does the ask function in rag.py do?",
     "mode": "ask",
     "expected_sources": ["src/rag.py"],
     "expected_keywords": ["get_cto_retriever"]

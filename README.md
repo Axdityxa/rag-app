@@ -56,7 +56,7 @@ src/
   retrieval.py     Hybrid + MMR + multi-query + rerank
   query.py         Pre-retrieval query rewrite
   guardrails.py    Empty-context refusal, citation warnings
-  rag.py           CTO chains + ask()
+  rag.py           ask() orchestration (retrieve + LLM)
   prompts.py       Mode prompts + citation rules
   vector_store.py  ChromaDB
   llm.py           Ollama chat model

@@ -8,7 +8,7 @@ load_dotenv()
 from src.code_ingest import load_codebase, chunk_codebase, extract_zip
 from src.vector_store import index_documents, collection_count, CTO_COLLECTION
 from src.bm25_store import save_bm25_corpus, bm25_available
-from src.rag import build_cto_chain, ask
+from src.rag import verify_cto_ready, ask
 from src.retrieval import pipeline_status
 from src.prompts import MODE_LABELS
 from src.logger import setup_logger
@@ -18,9 +18,9 @@ logger = setup_logger("app")
 WORKSPACE_DIR = "workspace"
 DEFAULT_REPO = str(Path.cwd())
 
-st.set_page_config(page_title="AI CTO", page_icon="🧠", layout="wide")
+st.set_page_config(page_title="ContextOS", page_icon="🧠", layout="wide")
 
-st.title("AI CTO")
+st.title("ContextOS")
 st.caption("Your architecture-aware engineering copilot — understands your repo and helps you build safely.")
 
 mode_options = list(MODE_LABELS.keys())
@@ -98,19 +98,19 @@ if "cto_mode" not in st.session_state:
 
 if st.session_state.cto_mode != selected_mode:
     st.session_state.cto_mode = selected_mode
-    st.session_state.chain = None
 
-if "chain" not in st.session_state:
-    st.session_state.chain = None
+if "cto_ready" not in st.session_state:
+    st.session_state.cto_ready = False
 
-if st.session_state.chain is None:
+if not st.session_state.cto_ready:
     if collection_count(CTO_COLLECTION) == 0:
         st.info("Index your codebase in the sidebar to get started.")
         st.stop()
     try:
-        st.session_state.chain = build_cto_chain(st.session_state.cto_mode)
+        verify_cto_ready()
+        st.session_state.cto_ready = True
     except Exception as e:
-        logger.error(f"Could not initialise CTO chain: {e}", exc_info=True)
+        logger.error(f"Could not initialise RAG: {e}", exc_info=True)
         st.error(f"Could not connect to Ollama. Is it running?\n\n{e}")
         st.stop()
 
@@ -144,7 +144,7 @@ placeholders = {
     "flow": "Which flow should I explain?",
 }
 
-if prompt := st.chat_input(placeholders.get(selected_mode, "Ask your AI CTO…")):
+if prompt := st.chat_input(placeholders.get(selected_mode, "Ask your ContextOS…")):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
@@ -155,7 +155,6 @@ if prompt := st.chat_input(placeholders.get(selected_mode, "Ask your AI CTO…")
                 history = st.session_state.messages[:-1]
                 result = ask(
                     prompt,
-                    st.session_state.chain,
                     mode=selected_mode,
                     chat_history=history,
                 )

@@ -4,7 +4,7 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.rag import build_rag_chain, ask
+from src.rag import ask
 from src.logger import setup_logger
 
 logger = setup_logger("evaluation")
@@ -29,7 +29,6 @@ def load_eval_dataset(path: str = "evaluation/eval_dataset.json") -> list:
 
 def run_evaluation():
     try:
-        chain = build_rag_chain()
         dataset = load_eval_dataset()
 
         if not dataset:
@@ -50,7 +49,7 @@ def run_evaluation():
             expected = item.get("expected_answer", "")
 
             try:
-                result = ask(question, chain)
+                result = ask(question, mode="ask")
                 answer = result.get("answer", "")
 
                 if expected and has_expected:
